@@ -1,0 +1,49 @@
+apply plugin: 'com.android.model.application'
+
+model {
+    android {
+        compileSdkVersion rootProject.ext.compileSdkVersion
+        buildToolsVersion rootProject.ext.buildToolsVersion
+
+        defaultConfig {
+            applicationId "com.coo.simple.ndk"
+            minSdkVersion.apiLevel rootProject.ext.minSdkVersion
+            targetSdkVersion.apiLevel rootProject.ext.targetSdkVersion
+            versionCode 1
+            versionName "1.0"
+        }
+
+        buildTypes {
+            debug {
+                signingConfig = $("android.signingConfigs.release")
+                useProguard true
+                proguardFiles.add(file('proguard-rules.pro'))
+                zipAlignEnabled true
+                shrinkResources true// 移除无用的resource文件
+            }
+            release {
+                signingConfig = $("android.signingConfigs.release")
+                useProguard true
+                proguardFiles.add(file('proguard-rules.pro'))
+                zipAlignEnabled true
+                shrinkResources true// 移除无用的resource文件
+            }
+        }
+    }
+    android.signingConfigs {
+        create("release") {
+            storeFile file(System.getenv("COO_KEYSTORE"))
+            storePassword System.getenv("COO_STORE_PASSWORD")
+            keyAlias System.getenv("COO_KEY_ALIAS")
+            keyPassword System.getenv("COO_KEY_PASSWORD")
+        }
+    }
+}
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:design:23.4.0'
+    compile 'com.badoo.mobile:android-weak-handler:1.1'
+    compile project(':math')
+}

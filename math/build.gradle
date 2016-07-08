@@ -1,0 +1,54 @@
+apply plugin: 'com.android.model.library'
+
+model {
+    android {
+        compileSdkVersion rootProject.ext.compileSdkVersion
+        buildToolsVersion rootProject.ext.buildToolsVersion
+
+        defaultConfig {
+            minSdkVersion.apiLevel rootProject.ext.minSdkVersion
+            targetSdkVersion.apiLevel rootProject.ext.targetSdkVersion
+            versionCode 1
+            versionName "1.0"
+        }
+
+        buildTypes {
+            debug {
+                signingConfig = $("android.signingConfigs.release")
+                useProguard true
+                proguardFiles.add(file('proguard-rules.pro'))
+                zipAlignEnabled true
+                shrinkResources true// 移除无用的resource文件
+            }
+            release {
+                signingConfig = $("android.signingConfigs.release")
+                useProguard true
+                proguardFiles.add(file('proguard-rules.pro'))
+                zipAlignEnabled true
+                shrinkResources true// 移除无用的resource文件
+            }
+        }
+
+        ndk {
+            moduleName = "NativeMath"
+            toolchain = 'clang'
+            stl = "stlport_static"
+            ldLibs.add('log')
+            ldLibs.add('jnigraphics')
+            CFlags.addAll(['-Wall'])
+            abiFilters.addAll(['armeabi', 'armeabi-v7a', 'arm64-v8a'])
+        }
+    }
+    android.signingConfigs {
+        create("release") {
+            storeFile file(System.getenv("COO_KEYSTORE"))
+            storePassword System.getenv("COO_STORE_PASSWORD")
+            keyAlias System.getenv("COO_KEY_ALIAS")
+            keyPassword System.getenv("COO_KEY_PASSWORD")
+        }
+    }
+}
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+}
